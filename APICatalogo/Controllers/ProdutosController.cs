@@ -13,25 +13,42 @@ namespace APICatalogo.Controllers
 
         public ProdutosController(AppDbContext context)
         {
-                _context = context;
+            _context = context;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> GetTodosProdutos()
         {
-            var produtos = _context.Produtos.ToList();
-            if (produtos is null)
-                return NotFound("Sem produtos para retornar");
-            return produtos;
+
+            try
+            {
+                var produtos = _context.Produtos.ToList();
+                if (produtos is null)
+                    return NotFound("Sem produtos para retornar");
+                return produtos;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
+            }
         }
 
         [HttpGet("{id:int}", Name = "ObterProduto")]
-        public ActionResult<Produto> GetProdutoPorId(int id) 
+        public ActionResult<Produto> GetProdutoPorId(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p => p.IdProduto == id);
-            if (produto is null)
-                return NotFound($"Produto codigo {id} não encontrado!");
-            return produto;
+
+
+            try
+            {
+                var produto = _context.Produtos.FirstOrDefault(p => p.IdProduto == id);
+                if (produto is null)
+                    return NotFound($"Produto codigo {id} não encontrado!");
+                return produto;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
+            }
         }
 
         [HttpPost]
@@ -43,20 +60,20 @@ namespace APICatalogo.Controllers
             _context.Produtos.Add(produto);
             _context.SaveChanges();
 
-            return new CreatedAtRouteResult("ObterProduto", 
-                new {id = produto.IdProduto}, produto);
+            return new CreatedAtRouteResult("ObterProduto",
+                new { id = produto.IdProduto }, produto);
         }
 
         [HttpPut("{id:int}")]
         public ActionResult Put(int id, Produto produto)
         {
-            if(id != produto.IdProduto)
+            if (id != produto.IdProduto)
                 return BadRequest();
 
             _context.Entry(produto).State = EntityState.Modified;
             _context.SaveChanges();
 
-            return Ok(produto);    
+            return Ok(produto);
         }
 
         [HttpDelete("{id:int}")]
@@ -64,14 +81,14 @@ namespace APICatalogo.Controllers
         {
             var produto = _context.Produtos.FirstOrDefault(p => p.IdProduto == id);
 
-            if(produto is null)
+            if (produto is null)
                 return NotFound("Produto não encontrado!");
 
             _context.Produtos.Remove(produto);
             _context.SaveChanges();
 
             return Ok(produto);
-        }    
+        }
 
     }
 }

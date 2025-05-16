@@ -19,34 +19,55 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> BuscarTodasAsCategorias()
         {
-            var categorias = _context.Categorias.AsNoTracking().ToList();
+            try
+            {
+                var categorias = _context.Categorias.AsNoTracking().ToList();
 
-            if (categorias is null)
-                return NotFound("Não há Categorias!");
+                if (categorias is null)
+                    return NotFound("Não há Categorias!");
 
-            return categorias;
+                return categorias;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
+            }
         }
 
         [HttpGet("{id:int}", Name= "BuscarCategoriaPorId")]
         public ActionResult<Categoria> BuscarCategoriaPorId(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(c => c.IdCategoria == id);
+            try
+            {
+                var categoria = _context.Categorias.FirstOrDefault(c => c.IdCategoria == id);
 
-            if (categoria is null)
-                return NotFound($"Categoria código {id} não encontrada!");
+                if (categoria is null)
+                    return NotFound($"Categoria código {id} não encontrada!");
 
-            return categoria;
+                return categoria;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
+            }
         }
 
         [HttpGet("CategoriasComProdutos")]
         public ActionResult<IEnumerable<Categoria>> BuscarCategoriasComProdutos()
         {
-            var categorias = _context.Categorias.Include(p => p.Produtos).Where(c => c.IdCategoria <= 10).ToList();
+            try
+            {
+                var categorias = _context.Categorias.Include(p => p.Produtos).Where(c => c.IdCategoria <= 10).ToList();
 
-            if (categorias is null)
-                return NotFound("Não há categorias!");
+                if (categorias is null)
+                    return NotFound("Não há categorias!");
 
-            return categorias;
+                return categorias;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
+            }
         }
 
         [HttpPost]
