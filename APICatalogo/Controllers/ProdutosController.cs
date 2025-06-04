@@ -33,14 +33,12 @@ namespace APICatalogo.Controllers
             }
         }
 
-        [HttpGet("{id:int}", Name = "ObterProduto")]
-        public ActionResult<Produto> GetProdutoPorId(int id)
+        [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
+        public async Task<ActionResult<Produto>> GetProdutoPorId(int id)
         {
-
-
             try
             {
-                var produto = _context.Produtos.FirstOrDefault(p => p.IdProduto == id);
+                var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.IdProduto == id);
                 if (produto is null)
                     return NotFound($"Produto codigo {id} não encontrado!");
                 return produto;
