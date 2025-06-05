@@ -1,4 +1,5 @@
 using APICatalogo.Context;
+using APICatalogo.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -17,6 +18,11 @@ var dbConnection = builder.Configuration.GetConnectionString("DefaultConnection"
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(dbConnection));
+
+
+// DI
+
+builder.Services.AddTransient<IMeuServico, MeuServico>();
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
+using APICatalogo.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,12 @@ namespace APICatalogo.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
             }
+        }
+
+        // Model binding de services por DI e inferencia, sem atributo e sem injeção no construtor
+        [HttpGet("GetService/{nome:alpha}")]
+        public ActionResult<string> GetSaudacaoService(IMeuServico meuServico, string nome) {
+            return meuServico.Saudacao(nome);
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
