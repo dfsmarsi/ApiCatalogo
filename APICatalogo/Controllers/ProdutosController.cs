@@ -34,7 +34,7 @@ namespace APICatalogo.Controllers
             }
         }
 
-        // Model binding de services por DI e inferencia, sem atributo e sem injeção no construtor
+        // (From Services) Model binding de services por DI e inferencia, sem atributo e sem injeção no construtor
         [HttpGet("GetService/{nome:alpha}")]
         public ActionResult<string> GetSaudacaoService(IMeuServico meuServico, string nome) {
             return meuServico.Saudacao(nome);
