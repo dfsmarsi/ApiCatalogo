@@ -11,10 +11,12 @@ namespace APICatalogo.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ILogger _logger;
 
-        public CategoriasController(AppDbContext context)
+        public CategoriasController(AppDbContext context, ILogger<CategoriasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -28,10 +30,13 @@ namespace APICatalogo.Controllers
                 if (categorias is null)
                     return NotFound("Não há Categorias!");
 
+                _logger.LogInformation("----------------------- Get API/Categorias Sucesso no retorno ----------------------");
+
                 return categorias;
             }
             catch (Exception)
             {
+                _logger.LogError("---------------- Get API/Categorias ERRO -----------------------");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
             }
         }
