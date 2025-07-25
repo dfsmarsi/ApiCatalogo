@@ -1,5 +1,6 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
+using APICatalogo.Repositories;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,28 +11,22 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IProdutoRepository _repository;
 
-        public ProdutosController(AppDbContext context)
+        public ProdutosController(IProdutoRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> GetTodosProdutos()
         {
+            var produtos = _repository.Get().ToList();
 
-            try
-            {
-                var produtos = _context.Produtos.ToList();
-                if (produtos is null)
-                    return NotFound("Sem produtos para retornar");
-                return produtos;
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
-            }
+            if (produtos == null)
+                return NotFound();
+
+            return Ok(produtos);
         }
 
         // (From Services) Model binding de services por DI e inferencia, sem atributo e sem injeção no construtor
@@ -41,19 +36,14 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-        public async Task<ActionResult<Produto>> GetProdutoPorId(int id)
+        public ActionResult<Produto> GetProdutoPorId(int id)
         {
-            try
-            {
-                var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.IdProduto == id);
-                if (produto is null)
-                    return NotFound($"Produto codigo {id} não encontrado!");
-                return produto;
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na sua requisição!");
-            }
+            var produto = _repository.GetId(id);
+
+            if (produto == null)
+                return NotFound();
+
+            return Ok(produto);
         }
 
         [HttpPost]
@@ -62,11 +52,10 @@ namespace APICatalogo.Controllers
             if (produto is null)
                 return BadRequest();
 
-            _context.Produtos.Add(produto);
-            _context.SaveChanges();
+            var novoProduto = _repository.Create(produto);
 
             return new CreatedAtRouteResult("ObterProduto",
-                new { id = produto.IdProduto }, produto);
+                new { id = novoProduto.IdProduto }, novoProduto);
         }
 
         [HttpPut("{id:int}")]
@@ -75,8 +64,10 @@ namespace APICatalogo.Controllers
             if (id != produto.IdProduto)
                 return BadRequest();
 
-            _context.Entry(produto).State = EntityState.Modified;
-            _context.SaveChanges();
+            bool produtoAlterado = _repository.Update(produto);
+
+            if (!produtoAlterado)
+                return StatusCode(500, $"Falha ao atualizar o produto código: {produto.IdProduto}");
 
             return Ok(produto);
         }
@@ -84,15 +75,12 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p => p.IdProduto == id);
+            bool produtoDeletado = _repository.Delete(id);
 
-            if (produto is null)
-                return NotFound("Produto não encontrado!");
+            if (!produtoDeletado)
+                return StatusCode(500, $"Falha ao deletar produto código: {id}");
 
-            _context.Produtos.Remove(produto);
-            _context.SaveChanges();
-
-            return Ok(produto);
+            return Ok($"Produto código {id}, deletado com sucesso!");
         }
 
     }

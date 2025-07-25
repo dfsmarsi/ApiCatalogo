@@ -13,17 +13,17 @@ namespace APICatalogo.Repositories
             _context = context;
         }
 
-        public IEnumerable<Categoria> GetCategorias()
+        public IEnumerable<Categoria> Get()
         {
             return _context.Categorias.ToList();
         }
 
-        public Categoria GetCategoriaId(int id)
+        public Categoria GetId(int id)
         {
             return _context.Categorias.FirstOrDefault(c => c.IdCategoria == id);
         }
 
-        public Categoria CreateCategoria(Categoria categoria)
+        public Categoria Create(Categoria categoria)
         {
             if (categoria is null)
                 throw new ArgumentNullException(nameof(categoria));
@@ -34,7 +34,7 @@ namespace APICatalogo.Repositories
             return categoria;
         }
 
-        public Categoria UpdateCategoria(Categoria categoria)
+        public Categoria Update(Categoria categoria)
         {
             if(categoria is null)
                 throw new ArgumentNullException(nameof(categoria));
@@ -45,7 +45,7 @@ namespace APICatalogo.Repositories
             return categoria;
         }
         
-        public Categoria DeleteCategoria(int id)
+        public Categoria Delete(int id)
         {
             var categoria = _context.Categorias.Find(id);
 
