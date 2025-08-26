@@ -11,10 +11,10 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly ICategoriaRepository _repository;
+        private readonly IRepository<Categoria> _repository;
         private readonly ILogger _logger;
 
-        public CategoriasController(ICategoriaRepository repository, ILogger<CategoriasController> logger)
+        public CategoriasController(IRepository<Categoria> repository, ILogger<CategoriasController> logger)
         {
             _repository = repository;
             _logger = logger;
@@ -24,7 +24,7 @@ namespace APICatalogo.Controllers
         [ServiceFilter(typeof(ApiLoggingFilter))] // Filtro personalisado para gerar logs
         public ActionResult<IEnumerable<Categoria>> BuscarTodasAsCategorias()
         {
-            var categorias = _repository.Get;
+            var categorias = _repository.GetAll;
 
             return Ok(categorias);
         }
@@ -32,7 +32,7 @@ namespace APICatalogo.Controllers
         [HttpGet("{id:int}", Name = "BuscarCategoriaPorId")]
         public ActionResult<Categoria> BuscarCategoriaPorId(int id)
         {
-            var categoria = _repository.GetId(id);
+            var categoria = _repository.GetId(c=> c.IdCategoria == id);
 
             if (categoria is null)
             {
@@ -43,22 +43,8 @@ namespace APICatalogo.Controllers
             return Ok(categoria);
         }
 
-        [HttpGet("CategoriasComProdutos")]
-        public ActionResult<IEnumerable<Categoria>> BuscarCategoriasComProdutos()
-        {
-            // implementar no repository o metodo com o include 
-
-            //var categorias = _context.Categorias.Include(p => p.Produtos).Where(c => c.IdCategoria <= 10).ToList();
-
-            //if (categorias is null)
-            //    return NotFound("Não há categorias!");
-
-            //return categorias;
-            throw new NotImplementedException(); 
-        }
-
         [HttpPost]
-        public ActionResult GravarCategoria(Categoria categoria)
+        public ActionResult CriarCategoria(Categoria categoria)
         {
             if (categoria is null)
             {
@@ -89,12 +75,12 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var categoria = _repository.GetId(id);
+            var categoria = _repository.GetId(c => c.IdCategoria == id);
 
             if (categoria is null)
                 return NotFound("Categoria não encontrada!");
 
-            var categoriaExcluida =  _repository.Delete(id);
+            var categoriaExcluida =  _repository.Delete(categoria);
 
             return Ok(categoriaExcluida);
         }
