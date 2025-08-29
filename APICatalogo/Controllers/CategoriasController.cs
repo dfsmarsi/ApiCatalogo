@@ -24,7 +24,7 @@ namespace APICatalogo.Controllers
         [ServiceFilter(typeof(ApiLoggingFilter))] // Filtro personalisado para gerar logs
         public ActionResult<IEnumerable<Categoria>> BuscarTodasAsCategorias()
         {
-            var categorias = _repository.GetAll;
+            var categorias = _repository.GetAll();
 
             return Ok(categorias);
         }

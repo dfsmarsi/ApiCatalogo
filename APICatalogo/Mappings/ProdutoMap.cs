@@ -39,7 +39,7 @@ namespace APICatalogo.Mappings
 
             builder.Property(x => x.DataCadastro)
                 .HasColumnName("datacadastro")
-                .HasColumnType("TIMESTAMP")
+                .HasColumnType("timestamptz")
                 .IsRequired();
 
             builder.Property(x => x.IdCategoria)

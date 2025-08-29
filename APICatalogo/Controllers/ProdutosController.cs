@@ -20,7 +20,7 @@ namespace APICatalogo.Controllers
             _produtoRepository = produtoRepository;
         }
 
-        [HttpGet("produtos/{id}")]
+        [HttpGet("produtosporcategoria/{id}")]
         public ActionResult <IEnumerable<Produto>> GetProdutosPorCategoria(int id)
         {
             var produtos = _produtoRepository.GetProdutosPorCategoria(id);
