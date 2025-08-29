@@ -11,19 +11,17 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly IRepository<Produto> _repository;
-        private readonly IProdutoRepository _produtoRepository;
+        private readonly IUnitOfWork _uof;
 
-        public ProdutosController(IRepository<Produto> repository, IProdutoRepository produtoRepository)
+        public ProdutosController(IUnitOfWork uof)
         {
-            _repository = repository;
-            _produtoRepository = produtoRepository;
+            _uof = uof;
         }
 
         [HttpGet("produtosporcategoria/{id}")]
         public ActionResult <IEnumerable<Produto>> GetProdutosPorCategoria(int id)
         {
-            var produtos = _produtoRepository.GetProdutosPorCategoria(id);
+            var produtos = _uof.ProdutoRepository.GetProdutosPorCategoria(id);
 
             if(produtos is null)
                 return NotFound();
@@ -34,7 +32,7 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> GetTodosProdutos()
         {
-            var produtos = _repository.GetAll();
+            var produtos = _uof.ProdutoRepository.GetAll();
 
             if (produtos == null)
                 return NotFound();
@@ -43,15 +41,15 @@ namespace APICatalogo.Controllers
         }
 
         // (From Services) Model binding de services por DI e inferencia, sem atributo e sem injeção no construtor
-        [HttpGet("GetService/{nome:alpha}")]
-        public ActionResult<string> GetSaudacaoService(IMeuServico meuServico, string nome) {
-            return meuServico.Saudacao(nome);
-        }
+        //[HttpGet("GetService/{nome:alpha}")]
+        //public ActionResult<string> GetSaudacaoService(IMeuServico meuServico, string nome) {
+        //    return meuServico.Saudacao(nome);
+        //}
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
         public ActionResult<Produto> GetProdutoPorId(int id)
         {
-            var produto = _repository.GetId(p=> p.IdProduto == id);
+            var produto = _uof.ProdutoRepository.GetId(p=> p.IdProduto == id);
 
             if (produto == null)
                 return NotFound();
@@ -65,7 +63,8 @@ namespace APICatalogo.Controllers
             if (produto is null)
                 return BadRequest();
 
-            var novoProduto = _repository.Create(produto);
+            var novoProduto = _uof.ProdutoRepository.Create(produto);
+            _uof.Commit();
 
             return new CreatedAtRouteResult("ObterProduto",
                 new { id = novoProduto.IdProduto }, novoProduto);
@@ -77,7 +76,8 @@ namespace APICatalogo.Controllers
             if (id != produto.IdProduto)
                 return BadRequest();
 
-            var produtoAlterado = _repository.Update(produto);
+            var produtoAlterado = _uof.ProdutoRepository.Update(produto);
+            _uof.Commit();
 
             if (produtoAlterado is null)
                 return StatusCode(500, $"Falha ao atualizar o produto código: {produto.IdProduto}");
@@ -88,13 +88,14 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var produto = _repository.GetId(p => p.IdProduto == id);
+            var produto = _uof.ProdutoRepository.GetId(p => p.IdProduto == id);
 
             if (produto is null)
                 return StatusCode(500, $"Produto {id} não encontrado.");
 
-            var produtoDeletado = _repository.Delete(produto);         
-            
+            var produtoDeletado = _uof.ProdutoRepository.Delete(produto);  
+            _uof.Commit();
+
             return Ok(produtoDeletado);
         }
 
