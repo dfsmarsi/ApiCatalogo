@@ -1,4 +1,5 @@
 using APICatalogo.Context;
+using APICatalogo.DTO.Mappings;
 using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.log;
@@ -34,11 +35,15 @@ builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
 {
     LogLevel = LogLevel.Information
 }));
+
+builder.Services.AddAutoMapper(
+    cfg => { }, 
+    typeof(ProdutoDTOMappingProfile)
+);
 
 var app = builder.Build();
 

@@ -1,11 +1,8 @@
-﻿using APICatalogo.Context;
-using APICatalogo.DTO;
+﻿using APICatalogo.DTO;
 using APICatalogo.DTO.Mappings;
 using APICatalogo.Filters;
-using APICatalogo.Models;
 using APICatalogo.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
@@ -14,9 +11,9 @@ namespace APICatalogo.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _uof;
-        private readonly ILogger _logger;
+        private readonly ILogger<CategoriasController> _logger;
 
-        public CategoriasController(IUnitOfWork uof, ILogger logger)
+        public CategoriasController(IUnitOfWork uof, ILogger<CategoriasController> logger)
         {
             _uof = uof;
             _logger = logger;
