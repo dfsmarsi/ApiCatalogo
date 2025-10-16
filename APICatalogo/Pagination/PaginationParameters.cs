@@ -2,7 +2,7 @@
 {
     public abstract class PaginationParameters
     {
-        const int maxPageSize = 2;
+        const int maxPageSize = 30;
         public int PageNumber { get; set; } = 1;
         private int _pageSize = maxPageSize;
 
