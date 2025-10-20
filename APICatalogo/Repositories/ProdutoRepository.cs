@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
+using System.Threading.Tasks;
 
 namespace APICatalogo.Repositories;
 
@@ -10,9 +11,9 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
     {
     }
 
-    public PagedList<Produto> GetProdutosFiltroPorPreco(ProdutosFiltroPreco produtoFiltroParams)
+    public async Task<PagedList<Produto>> GetProdutosFiltroPorPrecoAsync(ProdutosFiltroPreco produtoFiltroParams)
     {
-        var produtos = GetAll().AsQueryable();
+        var produtos = await GetAllAsync();
 
         if(produtoFiltroParams.Preco.HasValue && !string.IsNullOrEmpty(produtoFiltroParams.PrecoCriterio))
         {
@@ -30,17 +31,18 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
             }
         }
 
-        var produtosFiltrados = PagedList<Produto>.ToPagedList(produtos, produtoFiltroParams.PageNumber, produtoFiltroParams.PageSize);
+        var produtosFiltrados = PagedList<Produto>.ToPagedList(produtos.AsQueryable(), produtoFiltroParams.PageNumber, produtoFiltroParams.PageSize);
 
         return produtosFiltrados;
     }
 
-    public PagedList<Produto> GetProdutosPaginados(ProdutoParameters produtoParams)
+    public async Task<PagedList<Produto>> GetProdutosPaginadosAsync(ProdutoParameters produtoParams)
     {
-        var produtos = GetAll().OrderBy(p => p.IdProduto).AsQueryable();
-        var produtosOrdenados = PagedList<Produto>.ToPagedList(produtos, produtoParams.PageNumber, produtoParams.PageSize);
+        var produtos = await GetAllAsync();
+        var produtosOrdenados = produtos.OrderBy(p => p.IdProduto).AsQueryable();
+        var produtosOrdenadosPaginados = PagedList<Produto>.ToPagedList(produtosOrdenados, produtoParams.PageNumber, produtoParams.PageSize);
 
-        return produtosOrdenados;
+        return produtosOrdenadosPaginados;
     }
 
     //public IEnumerable<Produto> GetProdutosPaginados(ProdutoParameters produtoParams)
@@ -51,8 +53,9 @@ public class ProdutoRepository : Repository<Produto>, IProdutoRepository
     //        .Take(produtoParams.PageSize);
     //}
 
-    public IEnumerable<Produto> GetProdutosPorCategoria(int id)
+    public async Task<IEnumerable<Produto>> GetProdutosPorCategoriaAsync(int id)
     {
-        return GetAll().Where(c => c.IdCategoria == id);
+        var produtos = await GetAllAsync();
+        return produtos.Where(c => c.IdCategoria == id);
     }
 }
