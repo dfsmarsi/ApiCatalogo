@@ -2,7 +2,6 @@
 using APICatalogo.Models;
 using APICatalogo.Pagination;
 using X.PagedList;
-using X.PagedList.Extensions;
 
 namespace APICatalogo.Repositories;
 

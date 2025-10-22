@@ -4,6 +4,7 @@ using APICatalogo.Filters;
 using APICatalogo.Pagination;
 using APICatalogo.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList;
 
 namespace APICatalogo.Controllers
 {
@@ -28,16 +29,16 @@ namespace APICatalogo.Controllers
             return ObterCategoriasFiltradas(categorias);
         }
 
-        private ActionResult<IEnumerable<CategoriaDTO>> ObterCategoriasFiltradas(PagedList<Models.Categoria> categorias)
+        private ActionResult<IEnumerable<CategoriaDTO>> ObterCategoriasFiltradas(IPagedList<Models.Categoria> categorias)
         {
             var metadata = new
             {
-                categorias.TotalCount,
+                categorias.Count,
                 categorias.PageSize,
-                categorias.CurrentPage,
-                categorias.TotalPages,
-                categorias.HasNext,
-                categorias.HasPrevious
+                categorias.PageCount,
+                categorias.TotalItemCount,
+                categorias.HasNextPage,
+                categorias.HasPreviousPage
             };
             Response.Headers.Add("X-Pagination",
                 System.Text.Json.JsonSerializer.Serialize(metadata));
