@@ -5,6 +5,7 @@ using APICatalogo.Filters;
 using APICatalogo.log;
 using APICatalogo.Repositories;
 using APICatalogo.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -21,6 +22,13 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
 var dbConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -41,7 +49,7 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
 }));
 
 builder.Services.AddAutoMapper(
-    cfg => { }, 
+    cfg => { },
     typeof(ProdutoDTOMappingProfile)
 );
 
@@ -56,6 +64,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.MapControllers();
 app.Run();
