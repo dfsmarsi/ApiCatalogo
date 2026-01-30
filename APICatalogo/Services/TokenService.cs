@@ -28,8 +28,8 @@ namespace APICatalogo.Services
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return (JwtSecurityToken)token;
+            var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+            return token;
         }
 
         public string GenerateRefreshToken()
@@ -45,9 +45,9 @@ namespace APICatalogo.Services
             return refreshToken;
         }
 
-        public ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token, IConfiguration _config)
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token, IConfiguration _config)
         {
-            var secretKey = _config.GetSection("JWT").GetValue<string>("SecretKey")??
+            var secretKey = _config["JWT:SecretKey"] ??
                 throw new InvalidOperationException("Chave Secreta inválida");
 
             var tokenValidationParameters = new TokenValidationParameters
