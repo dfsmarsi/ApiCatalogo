@@ -55,7 +55,7 @@ namespace APICatalogo.Controllers
                 _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInMinutes"], 
                     out int refreshTokenValidityInMinutes);
 
-                user.RefreshTokenExpiryTime = DateTime.Now.AddMinutes(refreshTokenValidityInMinutes);
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(refreshTokenValidityInMinutes);
 
                 user.RefreshToken = refreshToken;
                 await _userManager.UpdateAsync(user);

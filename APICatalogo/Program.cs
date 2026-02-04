@@ -83,8 +83,8 @@ builder.Services.AddAuthentication(opt =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ClockSkew = TimeSpan.Zero,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(secretKey))
     };
@@ -120,5 +120,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting(); // Opcional, mas boa prática
+
+app.UseAuthentication(); // Essencial: Verifica QUEM é o usuário
+app.UseAuthorization();  // Essencial: Verifica o que ele PODE fazer
+
 app.MapControllers();
 app.Run();
