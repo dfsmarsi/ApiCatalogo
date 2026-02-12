@@ -90,6 +90,23 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("SuperAdmin", policy => 
+        policy.RequireRole("Admin").RequireClaim("id", "braia"));
+
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+
+    options.AddPolicy("ExclusivePolicyOnly", policy =>
+        policy.RequireAssertion(context =>
+        context.User.HasClaim(claim =>
+        claim.Type == "id" && claim.Value == "braia")
+        || context.User.IsInRole("Admin"))
+    );
+});
+
 // DI
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();
