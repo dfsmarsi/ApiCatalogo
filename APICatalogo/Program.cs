@@ -65,10 +65,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(dbConnection));
 
 //Token e Auth
-var secretKey = builder.Configuration["JWT:SecretKey"] 
+var secretKey = builder.Configuration["JWT:SecretKey"]
     ?? throw new ArgumentException("Chave inválida!");
 
-builder.Services.AddAuthentication(opt => 
+builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -94,7 +94,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 
-    options.AddPolicy("SuperAdmin", policy => 
+    options.AddPolicy("SuperAdmin", policy =>
         policy.RequireRole("Admin").RequireClaim("id", "braia"));
 
     options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
@@ -106,6 +106,16 @@ builder.Services.AddAuthorization(options =>
         || context.User.IsInRole("Admin"))
     );
 });
+
+var OrigensComAcessoPermitido = "teste";
+
+builder.Services.AddCors(opt =>
+    opt.AddPolicy(name: OrigensComAcessoPermitido,
+    policy =>
+    {
+        policy.WithOrigins("https://apirequest.io");
+    })
+);
 
 // DI
 builder.Services.AddTransient<IMeuServico, MeuServico>();
@@ -140,8 +150,9 @@ app.UseHttpsRedirection();
 
 app.UseRouting(); // Opcional, mas boa prática
 
-app.UseAuthentication(); // Essencial: Verifica QUEM é o usuário
-app.UseAuthorization();  // Essencial: Verifica o que ele PODE fazer
+app.UseCors(OrigensComAcessoPermitido);
 
+app.UseAuthentication(); // <--- ADICIONE ESTA LINHA AQUI
+app.UseAuthorization();  // Essencial: Verifica o que ele PODE fazer
 app.MapControllers();
 app.Run();
