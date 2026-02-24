@@ -4,6 +4,7 @@ using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.log;
 using APICatalogo.Models;
+using APICatalogo.RateLimitOptions;
 using APICatalogo.Repositories;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -117,6 +119,30 @@ builder.Services.AddCors(opt =>
     })
 );
 
+// Rate Limiting
+var myOptions = new MyRateLimitOptions();
+
+builder.Configuration.GetSection(MyRateLimitOptions.MyRateLimit).Bind(myOptions);
+
+builder.Services.AddRateLimiter(opt =>
+{
+    opt.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    opt.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpcontext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpcontext.User.Identity?.Name ??
+            httpcontext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = myOptions.AutoReplenishment,
+                PermitLimit = myOptions.PermitLimit,
+                QueueLimit = myOptions.QueueLimit,
+                Window = TimeSpan.FromSeconds(myOptions.Window)
+            }
+        )
+    );
+});
+
 // DI
 builder.Services.AddTransient<IMeuServico, MeuServico>();
 builder.Services.AddScoped<ApiLoggingFilter>();
@@ -143,16 +169,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ConfigureExceptionsHandler(); //Extension para exceção personalizada
+    app.ConfigureExceptionsHandler();
 }
 
 app.UseHttpsRedirection();
 
-app.UseRouting(); // Opcional, mas boa prática
+app.UseRouting();
+app.UseRateLimiter();
 
 app.UseCors(OrigensComAcessoPermitido);
 
-app.UseAuthentication(); // <--- ADICIONE ESTA LINHA AQUI
-app.UseAuthorization();  // Essencial: Verifica o que ele PODE fazer
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();
