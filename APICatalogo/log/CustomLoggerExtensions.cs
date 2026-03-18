@@ -1,9 +1,7 @@
 ﻿namespace APICatalogo.log
 {
-    // A classe precisa ser estática
     public static class CustomLoggerExtensions
     {
-        // O "this ILoggingBuilder builder" indica que estamos estendendo a funcionalidade de log do .NET
         public static ILoggingBuilder AddCustomLogger(
             this ILoggingBuilder builder,
             Action<CustomLoggerProviderConfiguration> configure)
