@@ -152,10 +152,11 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
+builder.Logging.ClearProviders();
+builder.Logging.AddCustomLogger(config =>
 {
-    LogLevel = LogLevel.Information
-}));
+    config.LogLevel = LogLevel.Information;
+});
 
 builder.Services.AddAutoMapper(
     cfg => { },
