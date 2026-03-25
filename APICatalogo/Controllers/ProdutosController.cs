@@ -60,14 +60,21 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetTodosProdutos()
         {
-            var produtos = await _uof.ProdutoRepository.GetAllAsync();
+            try
+            {
+                var produtos = await _uof.ProdutoRepository.GetAllAsync();
 
-            if (produtos == null)
-                return NotFound();
+                if (produtos == null)
+                    return NotFound();
 
-            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+                var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
-            return Ok(produtosDTO);
+                return Ok(produtosDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // (From Services) Model binding de services por DI e inferencia, sem atributo e sem injeção no construtor
@@ -76,9 +83,12 @@ namespace APICatalogo.Controllers
         //    return meuServico.Saudacao(nome);
         //}
 
-        [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
+        [HttpGet("{id}", Name = "ObterProduto")]
         public async Task<ActionResult<ProdutoDTO>> GetProdutoPorId(int id)
         {
+            if (id == null || id <= 0)
+                return BadRequest("Id deve ser maior que zero.");
+
             var produto = await _uof.ProdutoRepository.GetIdAsync(p => p.IdProduto == id);
 
             if (produto == null)
