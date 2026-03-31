@@ -24,7 +24,7 @@ namespace ApiCatalogoUnitTests.UnitTests
         [Fact]
         public async Task GetProdutosById_ReturnsOkResult()
         {
-            var produtoId = 6;
+            var produtoId = 10;
             var data = await _controller.GetProdutoPorId(produtoId);
             data.Result.Should().BeOfType<OkObjectResult>()
                 .Which.StatusCode.Should().Be(200);
